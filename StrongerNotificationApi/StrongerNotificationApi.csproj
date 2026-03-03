@@ -26,6 +26,7 @@
     <Folder Include="Application/" />
     <Folder Include="Application/Abstractions/" />
     <Folder Include="Application/Abstractions/Repositories/" />
+    <Folder Include="Application/Abstractions/Services/" />
     <Folder Include="Application/Config/" />
     <Folder Include="Application/Extensions/" />
     <Folder Include="Application/Responses/" />
@@ -37,6 +38,7 @@
     <Folder Include="Infra/Extensions/" />
     <Folder Include="Infra/Persistence/" />
     <Folder Include="Infra/Persistence/Repositories/" />
+    <Folder Include="Infra/Services/" />
   </ItemGroup>
 
 </Project>
