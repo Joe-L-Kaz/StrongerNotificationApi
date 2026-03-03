@@ -21,7 +21,6 @@ public class AddUserDeviceCommandHandler(
         UserDeviceEntity entity = mapper.Map<UserDeviceEntity>(request);
 
         await repository.AddAsync(entity, cancellationToken);
-
         await context.SaveChangesAsync(cancellationToken);
 
         return new Response<AddUserDeviceResponse>

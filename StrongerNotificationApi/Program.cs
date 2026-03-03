@@ -1,5 +1,8 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication;
 using Stronger.Infrastructure;
+using StrongerNotificationApi.Application.Extensions;
+using StrongerNotificationApi.Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +13,18 @@ builder.Services.AddControllers()
     {
         o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "CustomAuthentication";
+}).AddScheme<AuthenticationSchemeOptions, CustomAuthenticationMiddleware>("CustomAuthentication", options => { });
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddInfrastructureLayer(builder.Configuration);
+builder.Services
+    .AddApplicationLayer()
+    .AddInfrastructureLayer(builder.Configuration);
 
 var app = builder.Build();
 

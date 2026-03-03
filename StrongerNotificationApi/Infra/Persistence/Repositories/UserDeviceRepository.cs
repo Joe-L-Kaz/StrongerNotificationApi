@@ -6,8 +6,8 @@ namespace StrongerNotificationApi.Infra.Persistence.Repositories;
 
 public class UserDeviceRepository : IUserDeviceRepository
 {
-    private readonly StrongerNotifDbContext _context;
-    public UserDeviceRepository(StrongerNotifDbContext context) => _context = context;
+    private readonly IStrongerNotifDbContext _context;
+    public UserDeviceRepository(IStrongerNotifDbContext context) => _context = context;
 
     async Task IUserDeviceRepository.AddAsync(UserDeviceEntity entity, CancellationToken cancellationToken)
     {

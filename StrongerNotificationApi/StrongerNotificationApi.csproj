@@ -33,6 +33,7 @@
     <Folder Include="Application/UseCases/" />
     <Folder Include="Application/UseCases/Commands/" />
     <Folder Include="Domain/Enums/" />
+    <Folder Include="Infra/Config/" />
     <Folder Include="Infra/Extensions/" />
     <Folder Include="Infra/Persistence/" />
     <Folder Include="Infra/Persistence/Repositories/" />
