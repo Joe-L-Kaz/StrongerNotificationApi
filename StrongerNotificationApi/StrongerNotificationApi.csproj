@@ -7,13 +7,35 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Properties/launchSettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.1" />
+    <PackageReference Include="MediatR" Version="14.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.13">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Application/" />
-    <Folder Include="Domain/" />
-    <Folder Include="Infra/" />
+    <Folder Include="Application/Abstractions/" />
+    <Folder Include="Application/Abstractions/Repositories/" />
+    <Folder Include="Application/Config/" />
+    <Folder Include="Application/Extensions/" />
+    <Folder Include="Application/Responses/" />
+    <Folder Include="Application/Responses/UserDevice/" />
+    <Folder Include="Application/UseCases/" />
+    <Folder Include="Application/UseCases/Commands/" />
+    <Folder Include="Domain/Enums/" />
+    <Folder Include="Infra/Extensions/" />
+    <Folder Include="Infra/Persistence/" />
+    <Folder Include="Infra/Persistence/Repositories/" />
   </ItemGroup>
 
 </Project>

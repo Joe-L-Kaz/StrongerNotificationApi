@@ -1,16 +1,19 @@
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stronger.Api.Controllers;
+using StrongerNotificationApi.Application.UseCases.Commands;
 
 namespace StrongerNotificationApi.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificationController : ControllerBase
+    public class NotificationController(IMediator mediator) : BaseController(mediator)
     {
-        [HttpGet]
-        public Task<String> RegisterAsync(CancellationToken cancellation)
+        [HttpPost]
+        public Task<IActionResult> AddAsync(AddUserDeviceCommand command, CancellationToken cancellation)
         {
-            return Task.FromResult("Success");
+            return this.SendAsync(command, cancellation);
         } 
     }
 }

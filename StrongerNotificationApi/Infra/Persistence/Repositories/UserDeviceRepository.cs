@@ -1,0 +1,36 @@
+using Microsoft.EntityFrameworkCore;
+using StrongerNotificationApi.Application.Abstractions.Repositories;
+using StrongerNotificationApi.Domain.Entities;
+
+namespace StrongerNotificationApi.Infra.Persistence.Repositories;
+
+public class UserDeviceRepository : IUserDeviceRepository
+{
+    private readonly StrongerNotifDbContext _context;
+    public UserDeviceRepository(StrongerNotifDbContext context) => _context = context;
+
+    async Task IUserDeviceRepository.AddAsync(UserDeviceEntity entity, CancellationToken cancellationToken)
+    {
+        await _context.UserDevices.AddAsync(entity, cancellationToken);
+    }
+
+    void IUserDeviceRepository.Delete(UserDeviceEntity entity)
+    {
+        _context.UserDevices.Remove(entity);
+    }
+
+    async Task<IEnumerable<UserDeviceEntity>> IUserDeviceRepository.ListAsync(CancellationToken cancellationToken)
+    {
+        return await _context.UserDevices.ToListAsync();
+    }
+
+    async Task<UserDeviceEntity?> IUserDeviceRepository.RetrieveAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.UserDevices.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
+    }
+
+    void IUserDeviceRepository.Update(UserDeviceEntity entity)
+    {
+        _context.UserDevices.Update(entity);
+    }
+}
