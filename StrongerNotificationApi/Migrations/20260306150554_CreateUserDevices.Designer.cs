@@ -12,8 +12,8 @@ using StrongerNotificationApi.Infra.Persistence;
 namespace StrongerNotificationApi.Migrations
 {
     [DbContext(typeof(StrongerNotifDbContext))]
-    [Migration("20260303122633_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260306150554_CreateUserDevices")]
+    partial class CreateUserDevices
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,23 +28,23 @@ namespace StrongerNotificationApi.Migrations
             modelBuilder.Entity("StrongerNotificationApi.Domain.Entities.UserDeviceEntity", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("DeviceToken")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
-                    b.Property<int>("DeviceType")
-                        .HasColumnType("int");
+                    b.Property<string>("DeviceType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<byte>("TrainingDays")
+                    b.Property<byte?>("TrainingDays")
                         .HasColumnType("tinyint unsigned");
 
-                    b.HasKey("UserId");
+                    b.HasKey("UserId", "DeviceToken");
 
                     b.ToTable("UserDevices");
                 });

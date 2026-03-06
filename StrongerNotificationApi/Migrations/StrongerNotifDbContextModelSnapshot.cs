@@ -25,11 +25,10 @@ namespace StrongerNotificationApi.Migrations
             modelBuilder.Entity("StrongerNotificationApi.Domain.Entities.UserDeviceEntity", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
                     b.Property<string>("DeviceToken")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("DeviceType")
                         .IsRequired()
@@ -39,10 +38,10 @@ namespace StrongerNotificationApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<byte>("TrainingDays")
+                    b.Property<byte?>("TrainingDays")
                         .HasColumnType("tinyint unsigned");
 
-                    b.HasKey("UserId");
+                    b.HasKey("UserId", "DeviceToken");
 
                     b.ToTable("UserDevices");
                 });

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
+using Stronger.Api.BackgroundWorkers;
 using Stronger.Infrastructure;
 using StrongerNotificationApi.Application.Extensions;
 using StrongerNotificationApi.Web.Middleware;
@@ -26,6 +27,8 @@ builder.Services
     .AddApplicationLayer()
     .AddInfrastructureLayer(builder.Configuration);
 
+builder.Services.AddHostedService<DailyNotificationsWorker>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,4 +43,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

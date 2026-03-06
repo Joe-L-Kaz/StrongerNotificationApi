@@ -10,6 +10,9 @@ public class UserDeviceEntityTypeConfiguration : IEntityTypeConfiguration<UserDe
     public void Configure(EntityTypeBuilder<UserDeviceEntity> builder)
     {
         builder
+            .HasKey(u => new {u.UserId, u.DeviceToken});
+
+        builder
             .Property(u => u.DeviceType)
             .HasConversion<String>();
     }
