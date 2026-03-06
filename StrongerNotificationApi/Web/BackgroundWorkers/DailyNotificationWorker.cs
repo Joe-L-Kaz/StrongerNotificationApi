@@ -14,7 +14,7 @@ public sealed class DailyNotificationsWorker : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DailyNotificationsWorker> _logger;
 
-    private static readonly TimeSpan RunAt = new(0, 0, 0); // 07:00
+    private static readonly TimeSpan RunAt = new(12, 0, 0);
 
     public DailyNotificationsWorker(IServiceScopeFactory scopeFactory, ILogger<DailyNotificationsWorker> logger)
     {
@@ -24,7 +24,6 @@ public sealed class DailyNotificationsWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Run forever until the host is stopping
         while (!stoppingToken.IsCancellationRequested)
         {
             var delay = GetDelayUntilNextRunEuropeLondon(RunAt);
@@ -33,11 +32,10 @@ public sealed class DailyNotificationsWorker : BackgroundService
 
             try
             {
-                //await Task.Delay(delay, stoppingToken);
+                await Task.Delay(delay, stoppingToken);
             }
             catch (TaskCanceledException)
             {
-                // host is stopping
                 break;
             }
 
@@ -48,14 +46,12 @@ public sealed class DailyNotificationsWorker : BackgroundService
 
                 _logger.LogInformation("DailyNotificationsWorker triggering SendNotificationsCommand...");
 
-                // If your command has no fields:
                 await mediator.Send(new SendNotificationsCommand(), stoppingToken);
 
                 _logger.LogInformation("DailyNotificationsWorker finished triggering SendNotificationsCommand.");
             }
             catch (Exception ex)
             {
-                // Important: swallow exceptions so the background service keeps running next day
                 _logger.LogError(ex, "DailyNotificationsWorker failed while sending notifications.");
             }
         }
