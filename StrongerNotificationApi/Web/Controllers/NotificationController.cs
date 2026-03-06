@@ -9,6 +9,7 @@ namespace StrongerNotificationApi.Web.Controllers
     public class NotificationController(IMediator mediator) : BaseController(mediator)
     {
         [HttpPost]
+        [ActionName("Add")]
         public Task<IActionResult> AddAsync(AddUserDeviceCommand command, CancellationToken cancellation)
         {
             return this.SendAsync(command, cancellation);
