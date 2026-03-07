@@ -12,10 +12,6 @@ using StrongerNotificationApi.Application.Abstractions.Services;
 
 namespace StrongerNotificationApi.Infra.Services;
 
-/// <summary>
-/// Minimal APNs HTTP/2 client with JWT provider-token generation (ES256) and in-memory caching.
-/// Token lifetime is ~1 hour; we refresh slightly early to avoid edge failures.
-/// </summary>
 public sealed class ApnsApiClient : IApnsApiClient
 {
     private readonly HttpClient _client;
@@ -25,17 +21,14 @@ public sealed class ApnsApiClient : IApnsApiClient
     private readonly string _keyId;
     private readonly string _p8Path;
 
-    // Cached provider token
     private string? _cachedJwt;
     private DateTimeOffset _cachedJwtExpiresAtUtc;
 
-    // Prevent concurrent refreshes
     private readonly SemaphoreSlim _jwtLock = new(1, 1);
 
     public ApnsApiClient(IConfiguration configuration)
     {
-        // Required config
-        var baseUrl = configuration["Apns:BaseUrl"] ?? configuration["ApnsUrl"]; // allow legacy key
+        var baseUrl = configuration["Apns:BaseUrl"] ?? throw new InvalidOperationException("Missing config: Apns:BaseUrl.");
         _apnsTopic = configuration["Apns:Topic"] ?? configuration["ApnsTopic"] ?? throw new InvalidOperationException("Missing config: Apns:Topic (bundle id).");
         _teamId = configuration["Apns:TeamId"] ?? configuration["ApnsTeamId"] ?? throw new InvalidOperationException("Missing config: Apns:TeamId.");
         _keyId = configuration["Apns:KeyId"] ?? configuration["ApnsKeyId"] ?? throw new InvalidOperationException("Missing config: Apns:KeyId.");
@@ -44,10 +37,8 @@ public sealed class ApnsApiClient : IApnsApiClient
         if (string.IsNullOrWhiteSpace(baseUrl))
             throw new InvalidOperationException("Missing config: Apns:BaseUrl (e.g. https://api.sandbox.push.apple.com).");
 
-        // APNs requires HTTP/2; make this the default for all requests.
         var handler = new SocketsHttpHandler
         {
-            // Proxies can force HTTP/1.1; disable unless you explicitly need one.
             UseProxy = false
         };
 
@@ -68,7 +59,6 @@ public sealed class ApnsApiClient : IApnsApiClient
         if (string.IsNullOrWhiteSpace(deviceToken))
             throw new ArgumentException("Device token is required.", nameof(deviceToken));
 
-        // Build minimal alert payload
         var payload = new
         {
             aps = new
@@ -87,19 +77,16 @@ public sealed class ApnsApiClient : IApnsApiClient
         using var request = new HttpRequestMessage
         {
             Method = HttpMethod.Post,
-            // BaseAddress already ends with '/', so this becomes: 3/device/<token>
             RequestUri = new Uri($"3/device/{deviceToken}", UriKind.Relative),
             Version = HttpVersion.Version20,
             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
             Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json")
         };
 
-        // Required headers
         request.Headers.TryAddWithoutValidation("authorization", $"bearer {jwt}");
         request.Headers.TryAddWithoutValidation("apns-topic", _apnsTopic);
         request.Headers.TryAddWithoutValidation("apns-push-type", "alert");
 
-        // Optional but recommended
         request.Headers.TryAddWithoutValidation("apns-priority", "10");
 
         using var response = await _client.SendAsync(request, cancellationToken);
@@ -114,7 +101,6 @@ public sealed class ApnsApiClient : IApnsApiClient
 
     private async Task<string> GetOrCreateJwtAsync(CancellationToken cancellationToken)
     {
-        // Refresh if missing or expiring within 5 minutes
         var now = DateTimeOffset.UtcNow;
         if (!string.IsNullOrWhiteSpace(_cachedJwt) && _cachedJwtExpiresAtUtc > now.AddMinutes(5))
             return _cachedJwt!;
@@ -122,15 +108,12 @@ public sealed class ApnsApiClient : IApnsApiClient
         await _jwtLock.WaitAsync(cancellationToken);
         try
         {
-            // Double-check after acquiring lock
             now = DateTimeOffset.UtcNow;
             if (!string.IsNullOrWhiteSpace(_cachedJwt) && _cachedJwtExpiresAtUtc > now.AddMinutes(5))
                 return _cachedJwt!;
 
-            // iat in seconds
             var iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-            // Header and payload for APNs provider token
             var headerJson = $"{{\"alg\":\"ES256\",\"kid\":\"{_keyId}\"}}";
             var payloadJson = $"{{\"iss\":\"{_teamId}\",\"iat\":{iat}}}";
 
@@ -142,7 +125,6 @@ public sealed class ApnsApiClient : IApnsApiClient
 
             _cachedJwt = $"{signingInput}.{Base64UrlEncode(signature)}";
 
-            // Apple tokens are valid for up to 1 hour; refresh at ~55 minutes.
             _cachedJwtExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(55);
 
             return _cachedJwt!;
@@ -155,11 +137,8 @@ public sealed class ApnsApiClient : IApnsApiClient
 
     private byte[] SignEs256(string signingInput)
     {
-        // Read .p8 key (PKCS#8 EC private key) and sign with ECDSA using SHA-256.
-        // Cache the parsed key if you want; for simplicity, we read each refresh (~hourly).
         var p8 = File.ReadAllText(_p8Path);
 
-        // Strip PEM armor
         const string begin = "-----BEGIN PRIVATE KEY-----";
         const string end = "-----END PRIVATE KEY-----";
 
@@ -181,13 +160,11 @@ public sealed class ApnsApiClient : IApnsApiClient
 
         var data = Encoding.ASCII.GetBytes(signingInput);
 
-        // IMPORTANT: Use IEEE P1363 format (r||s) for JWT signatures.
         return ecdsa.SignData(data, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
     }
 
     private static string Base64UrlEncode(byte[] data)
     {
-        // Base64Url per RFC 7515
         return Convert.ToBase64String(data)
             .TrimEnd('=')
             .Replace('+', '-')
