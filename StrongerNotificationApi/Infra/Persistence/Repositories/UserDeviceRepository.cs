@@ -24,6 +24,11 @@ public class UserDeviceRepository : IUserDeviceRepository
         return await _context.UserDevices.ToListAsync();
     }
 
+    async Task<IEnumerable<UserDeviceEntity>> IUserDeviceRepository.RetrieveAllByIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.UserDevices.Where(u => u.UserId == userId).ToListAsync(cancellationToken);
+    }
+
     async Task<List<UserDeviceEntity>> IUserDeviceRepository.RetrieveAllTrainingTodayAsync(byte todayMask, CancellationToken cancellationToken)
     {
         return await _context.UserDevices.Where(u => (u.TrainingDays & todayMask) != 0).ToListAsync(cancellationToken);

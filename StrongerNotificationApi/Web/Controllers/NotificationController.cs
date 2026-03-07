@@ -22,5 +22,14 @@ namespace StrongerNotificationApi.Web.Controllers
         {
             return this.SendAsync(new SendNotificationsCommand(), cancellationToken);
         }
+
+        [HttpPut]
+        [ActionName("SetTrainingDays")]
+        public Task<IActionResult> SetTrainingDaysAsync([FromQuery] Guid userId, SetTrainingDaysCommand command ,CancellationToken cancellationToken)
+        {
+            command.UserId = userId;
+            return this.SendAsync(command, cancellationToken);
+        }
+
     }
 }
