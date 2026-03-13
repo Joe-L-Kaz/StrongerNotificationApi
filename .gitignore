@@ -54,3 +54,4 @@ TestResult.xml
 nunit-*.xml
 
 appsettings.Development.json
+docker-automate.sh
