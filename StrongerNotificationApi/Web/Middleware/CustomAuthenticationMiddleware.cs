@@ -16,9 +16,7 @@ public class CustomAuthenticationMiddleware : AuthenticationHandler<Authenticati
         ILoggerFactory logger,
         UrlEncoder encoder,
         IConfiguration configuration
-        ) : base(options, logger, encoder
-    ) 
-        => _config = configuration;
+    ) : base(options, logger, encoder) => _config = configuration;
     
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
