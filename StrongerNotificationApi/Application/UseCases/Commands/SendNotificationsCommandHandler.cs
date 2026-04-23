@@ -48,7 +48,6 @@ public class SendNotificationCommandHandler(IUserDeviceRepository repository, IA
         var tz = TimeZoneInfo.FindSystemTimeZoneById("Europe/London");
         var nowLondon = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, tz);
 
-        // .NET: Sunday=0, Monday=1, ... Saturday=6
         int bitIndex = nowLondon.DayOfWeek switch
         {
             DayOfWeek.Monday => 0,
